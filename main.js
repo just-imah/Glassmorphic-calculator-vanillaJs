@@ -26,12 +26,17 @@ keys.addEventListener("click", (event) => {
   }
 
   if (target.classList.contains("operator")) {
-    console.log("operator", target.value);
+    // console.log("operator", target.value);
+      handleOperator(target.value);
+      updateDisplay();
+
     return;
   }
 
   if (target.classList.contains("decimal")) {
-    console.log("decimal", target.value);
+    // console.log("decimal", target.value);
+      inputDecimal(target.value);
+      updateDisplay();
     return;
   }
 
@@ -47,7 +52,62 @@ keys.addEventListener("click", (event) => {
 
 // display digits
 function inputDigit(digit) {
-  const { displayValue } = calculator;
-  // Overwrite `displayValue` if the current value is '0' otherwise append to it
-  calculator.displayValue = displayValue === "0" ? digit : displayValue + digit;
+    const { displayValue, waitingForSecondOperand } = calculator;
+    if (waitingForSecondOperand === true) {
+        calculator.displayValue = digit;
+        calculator.waitingForSecondOperand = false;
+    } else {
+        // Overwrite `displayValue` if the current value is '0' otherwise append to it
+        calculator.displayValue =
+            displayValue === "0" ? digit : displayValue + digit;
+    }
+  console.log(calculator)
+}
+
+// display decimal
+function inputDecimal(dot) {
+    // if the 'displayValue' doesn't cony=tain a decimal point
+    if(!calculator.displayValue.includes(dot)) {
+        // append the decimal point
+        calculator.displayValue += dot;
+    }
+}
+
+// handle Operators
+function handleOperator(nextOperator) {
+  // Destructure the properties on the calculator object
+  const { firstOperand, displayValue, operator } = calculator;
+  // `parseFloat` converts the string contents of `displayValue`
+  // to a floating-point number
+  const inputValue = parseFloat(displayValue);
+
+  // verify that `firstOperand` is null and that the `inputValue`
+  // is not a `NaN` value
+  if (firstOperand === null && !isNaN(inputValue)) {
+    // Update the firstOperand property
+    calculator.firstOperand = inputValue;
+  } else if (operator) {
+    const result = calculate(firstOperand, inputValue, operator);
+
+    calculator.displayValue = String(result);
+    calculator.firstOperand = result;
+  }
+
+  calculator.waitingForSecondOperand = true;
+  calculator.operator = nextOperator;
+}
+
+// when operatoe and second operand is clicked calculate
+function calculate(firstOperand, secondOperand, operator) {
+  if (operator === "+") {
+    return firstOperand + secondOperand;
+  } else if (operator === "-") {
+    return firstOperand - secondOperand;
+  } else if (operator === "*") {
+    return firstOperand * secondOperand;
+  } else if (operator === "/") {
+    return firstOperand / secondOperand;
+  }
+
+  return secondOperand;
 }
