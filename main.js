@@ -41,7 +41,9 @@ keys.addEventListener("click", (event) => {
   }
 
   if (target.classList.contains("all-clear")) {
-    console.log("clear", target.value);
+    // console.log("clear", target.value);
+      resetCalculator();
+      updateDisplay();
     return;
   }
 
@@ -66,6 +68,11 @@ function inputDigit(digit) {
 
 // display decimal
 function inputDecimal(dot) {
+    if (calculator.waitingForSecondOperand === true) {
+      calculator.displayValue = "0.";
+      calculator.waitingForSecondOperand = false;
+      return;
+    }
     // if the 'displayValue' doesn't cony=tain a decimal point
     if(!calculator.displayValue.includes(dot)) {
         // append the decimal point
@@ -79,7 +86,13 @@ function handleOperator(nextOperator) {
   const { firstOperand, displayValue, operator } = calculator;
   // `parseFloat` converts the string contents of `displayValue`
   // to a floating-point number
-  const inputValue = parseFloat(displayValue);
+    const inputValue = parseFloat(displayValue);
+    
+     if (operator && calculator.waitingForSecondOperand) {
+       calculator.operator = nextOperator;
+       console.log(calculator);
+       return;
+     }
 
   // verify that `firstOperand` is null and that the `inputValue`
   // is not a `NaN` value
@@ -94,7 +107,8 @@ function handleOperator(nextOperator) {
   }
 
   calculator.waitingForSecondOperand = true;
-  calculator.operator = nextOperator;
+    calculator.operator = nextOperator;
+    console.log(calculator)
 }
 
 // when operatoe and second operand is clicked calculate
@@ -110,4 +124,12 @@ function calculate(firstOperand, secondOperand, operator) {
   }
 
   return secondOperand;
+}
+// reset calculator: allclear function  
+function resetCalculator() {
+  calculator.displayValue = "0";
+  calculator.firstOperand = null;
+  calculator.waitingForSecondOperand = false;
+  calculator.operator = null;
+  console.log(calculator);
 }
